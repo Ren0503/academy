@@ -46,16 +46,9 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 
 class CourseSerialize(serializers.ModelSerializer):
-    reviews = serializers.SerializerMethodField(read_only=True)
-
     class Meta:
         model = Course
         fields = '__all__'
-
-    def get_reviews(self, obj):
-        reviews = obj.review_set.all()
-        serializer = ReviewSerializer(reviews, many=True)
-        return serializer.data
 
 
 class AnswerSerialize(serializers.ModelSerializer):
@@ -115,7 +108,7 @@ class EnrollSerialize(serializers.ModelSerializer):
         return serializer.data
 
 
-class LessonSerialize(serializers.ModelField):
+class LessonDetailSerializer(serializers.ModelSerializer):
     quiz = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
@@ -130,8 +123,15 @@ class LessonSerialize(serializers.ModelField):
         return quiz
 
 
-class CourseSerializeWithLesson(serializers.ModelSerializer):
+class LessonSerialize(serializers.ModelSerializer):
+    class Meta:
+        model = Lesson
+        fields = '__all__'
+
+
+class CourseDetailSerialize(serializers.ModelSerializer):
     lessons = serializers.SerializerMethodField(read_only=True)
+    reviews = serializers.SerializerMethodField(read_only=True)
 
     class Meta:
         model = Course
@@ -140,4 +140,9 @@ class CourseSerializeWithLesson(serializers.ModelSerializer):
     def get_lessons(self, obj):
         lesson = obj.lesson_set.all()
         serializer = LessonSerialize(lesson, many=True)
+        return serializer.data
+
+    def get_reviews(self, obj):
+        reviews = obj.review_set.all()
+        serializer = ReviewSerializer(reviews, many=True)
         return serializer.data
