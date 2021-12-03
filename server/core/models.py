@@ -83,7 +83,7 @@ class Quiz(models.Model):
                            primary_key=True, editable=False)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
     question = models.CharField(max_length=200, blank=True, null=True)
-    numAnswer = models.ImageField(blank=True, null=True, default=0)
+    numAnswer = models.IntegerField(blank=True, null=True, default=0)
     createdAt = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
