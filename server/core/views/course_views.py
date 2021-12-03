@@ -5,7 +5,7 @@ from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from rest_framework.response import Response
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
-from core.models import Certificate, Course, Enroll, Review, Lesson, Quiz, Answer
+from core.models import Certificate, Course, Enroll, Review
 from core.serializers import CertificateSerialize, CourseDetailSerialize, CourseSerialize, EnrollSerialize
 
 from rest_framework import status
@@ -116,6 +116,9 @@ def enrollCourse(request, pk):
             status='Pending',
         )
 
+        course.participants += 1
+        course.save()
+
         serializer = EnrollSerialize(enroll, many=False)
         return Response(serializer.data)
 
@@ -126,13 +129,15 @@ def certificateCourse(request, pk):
     user = request.user
     course = Course.objects.get(_id=pk)
 
-    alreadyCertificate = Certificate.objects.filter(user=user, course=course).exists()
+    alreadyCertificate = Certificate.objects.filter(
+        user=user, course=course).exists()
     if alreadyCertificate:
         content = {'detail': 'You were certificate course'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
     else:
-        textCer = "This certificate is proudly presented to " + user.name + ", for outstanding results of courses" + course.name
+        textCer = "This certificate is proudly presented to " + \
+            user.name + ", for outstanding results of courses" + course.name
 
         certificate = Certificate.objects.create(
             user=user,
@@ -140,5 +145,65 @@ def certificateCourse(request, pk):
             text=textCer,
         )
 
+        enroll = Enroll.objects.filter(user=user, course=course).exists()
+        enroll.status = "Completed"
+        enroll.save()
+
         serializer = CertificateSerialize(certificate, many=False)
         return Response(serializer.data)
+
+# Admin
+
+
+@api_view(['POST'])
+@permission_classes([IsAdminUser])
+def createCourse(request):
+    user = request.user
+
+    course = Course.objects.create(
+        user=user,
+        name='Sample Name',
+        participants=0,
+        category='Sample Category',
+        description='Sample description'
+    )
+
+    serializer = CourseSerialize(course, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['PUT'])
+@permission_classes([IsAdminUser])
+def updateCourse(request, pk):
+    data = request.data
+    course = Course.objects.get(_id=pk)
+
+    course.name = data['name']
+    course.category = data['category']
+    course.description = data['description']
+
+    course.save()
+
+    serializer = CourseSerialize(course, many=False)
+    return Response(serializer.data)
+
+
+@api_view(['POST'])
+def uploadImage(request):
+    data = request.data
+
+    course_id = data['course_id']
+    course = Course.objects.get(_id=course_id)
+
+    course.image = request.FILES.get('image')
+    course.save()
+
+    return Response('Image was uploaded')
+
+
+@api_view(['DELETE'])
+@permission_classes([IsAdminUser])
+def deleteCourse(request, pk):
+    course = Course.objects.get(_id=pk)
+    course.delete()
+    return Response('Course Deleted')
