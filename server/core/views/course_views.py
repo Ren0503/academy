@@ -10,7 +10,9 @@ from core.serializers import CertificateSerialize, CourseDetailSerialize, Course
 
 from rest_framework import status
 
+# ----------------------------
 # Guest
+# ----------------------------
 
 
 @api_view(['GET'])
@@ -23,7 +25,7 @@ def getCourses(request):
         name__icontains=query).order_by('-createdAt')
 
     page = request.query_params.get('page')
-    paginator = Paginator(courses, 5)
+    paginator = Paginator(courses, 8)
 
     try:
         courses = paginator.page(page)
@@ -50,11 +52,16 @@ def getTopCourses(request):
 
 @api_view(['GET'])
 def getCourse(request, pk):
-    course = Course.objects.get(_id=pk)
-    serializer = CourseDetailSerialize(course, many=False)
-    return Response(serializer.data)
+    try:
+        course = Course.objects.get(_id=pk)
+        serializer = CourseDetailSerialize(course, many=False)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'details': f"{e}"}, status=status.HTTP_204_NO_CONTENT)
 
+# ----------------------------
 # User
+# ----------------------------
 
 
 @api_view(['POST'])
@@ -152,7 +159,9 @@ def certificateCourse(request, pk):
         serializer = CertificateSerialize(certificate, many=False)
         return Response(serializer.data)
 
+# ----------------------------
 # Admin
+# ----------------------------
 
 
 @api_view(['POST'])
@@ -175,17 +184,20 @@ def createCourse(request):
 @api_view(['PUT'])
 @permission_classes([IsAdminUser])
 def updateCourse(request, pk):
-    data = request.data
-    course = Course.objects.get(_id=pk)
+    try:
+        data = request.data
+        course = Course.objects.get(_id=pk)
 
-    course.name = data['name']
-    course.category = data['category']
-    course.description = data['description']
+        course.name = data['name']
+        course.category = data['category']
+        course.description = data['description']
 
-    course.save()
+        course.save()
 
-    serializer = CourseSerialize(course, many=False)
-    return Response(serializer.data)
+        serializer = CourseSerialize(course, many=False)
+        return Response(serializer.data)
+    except Exception as e:
+        return Response({'details': f"{e}"}, status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['POST'])
@@ -204,6 +216,9 @@ def uploadImage(request):
 @api_view(['DELETE'])
 @permission_classes([IsAdminUser])
 def deleteCourse(request, pk):
-    course = Course.objects.get(_id=pk)
-    course.delete()
-    return Response('Course Deleted')
+    try:
+        course = Course.objects.get(_id=pk)
+        course.delete()
+        return Response('Course Deleted')
+    except Exception as e:
+        return Response({'details': f"{e}"}, status=status.HTTP_204_NO_CONTENT)

@@ -54,7 +54,7 @@ class CourseSerialize(serializers.ModelSerializer):
 class AnswerSerialize(serializers.ModelSerializer):
     class Meta:
         model = Answer
-        fields = '__all__'
+        fields = ['_id', 'quiz', 'text', 'createdAt']
 
 
 class QuizSerialize(serializers.ModelSerializer):
@@ -119,6 +119,7 @@ class LessonDetailSerializer(serializers.ModelSerializer):
         quiz = obj.quiz_set.all()
         serializer = QuizSerialize(quiz, many=True)
         return serializer.data
+
 
 class LessonSerialize(serializers.ModelSerializer):
     class Meta:
