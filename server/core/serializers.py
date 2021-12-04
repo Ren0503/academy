@@ -65,7 +65,7 @@ class QuizSerialize(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_answers(self, obj):
-        answers = obj.review_set.all()
+        answers = obj.answer_set.all()
         serializer = AnswerSerialize(answers, many=True)
         return serializer.data
 
@@ -116,12 +116,9 @@ class LessonDetailSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
     def get_quiz(self, obj):
-        try:
-            quiz = QuizSerialize(obj.quiz, many=False).data
-        except:
-            quiz = False
-        return quiz
-
+        quiz = obj.quiz_set.all()
+        serializer = QuizSerialize(quiz, many=True)
+        return serializer.data
 
 class LessonSerialize(serializers.ModelSerializer):
     class Meta:

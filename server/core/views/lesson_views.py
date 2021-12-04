@@ -11,8 +11,7 @@ from core.serializers import CourseDetailSerialize, LessonDetailSerializer, Less
 from rest_framework import status
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
-def getLessonByCourse(request, pk):
+def getLessonsByCourse(request, pk):
     lessons = Lesson.objects.filter(course=pk)
 
     serializer = LessonSerialize(lessons, many=True)
@@ -20,11 +19,10 @@ def getLessonByCourse(request, pk):
 
 
 @api_view(['GET'])
-@permission_classes([IsAuthenticated])
 def getDetailLesson(request, pk):
     lesson = Lesson.objects.get(_id=pk)
 
-    serializer = LessonDetailSerializer(lesson, many=True)
+    serializer = LessonDetailSerializer(lesson, many=False)
     return Response(serializer.data)
 
 @api_view(['POST'])
