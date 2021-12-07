@@ -40,7 +40,7 @@ def getCourses(request):
     page = int(page)
     print('Page:', page)
     serializer = CourseSerialize(courses, many=True)
-    return Response({'products': serializer.data, 'page': page, 'pages': paginator.num_pages})
+    return Response({'courses': serializer.data, 'page': page, 'pages': paginator.num_pages})
 
 
 @api_view(['GET'])
@@ -144,7 +144,7 @@ def certificateCourse(request, pk):
 
     else:
         textCer = "This certificate is proudly presented to " + \
-            user.name + ", for outstanding results of courses" + course.name
+            user.first_name + ", for outstanding results of courses" + course.name
 
         certificate = Certificate.objects.create(
             user=user,
@@ -152,9 +152,10 @@ def certificateCourse(request, pk):
             text=textCer,
         )
 
-        enroll = Enroll.objects.filter(user=user, course=course).exists()
-        enroll.status = "Completed"
-        enroll.save()
+        enrolls = Enroll.objects.filter(user=user, course=course).exists()
+        for i in enrolls:
+            i.status = "Completed"
+            i.save()
 
         serializer = CertificateSerialize(certificate, many=False)
         return Response(serializer.data)

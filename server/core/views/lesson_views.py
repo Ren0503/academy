@@ -64,16 +64,19 @@ def createLesson(request, pk):
     user = request.user
     course = Course.objects.get(_id=pk)
 
-    lesson = Lesson.objects.create(
-        user=user,
-        course=course,
-        name='Sample Name',
-        unit=0,
-        content='Sample Content',
-    )
+    if course:
+        lesson = Lesson.objects.create(
+            user=user,
+            course=course,
+            name='Sample Name',
+            unit=0,
+            content='Sample Content',
+        )
 
-    serializer = LessonSerialize(lesson, many=False)
-    return Response(serializer.data)
+        serializer = LessonSerialize(lesson, many=False)
+        return Response(serializer.data)
+    else:
+        return Response({'details': "Course not found"},status=status.HTTP_404_NOT_FOUND)
 
 
 @api_view(['PUT'])
@@ -83,7 +86,6 @@ def updateLesson(request, pk):
         data = request.data
         lesson = Lesson.objects.get(_id=pk)
 
-        lesson.course = data['course']
         lesson.name = data['name']
         lesson.unit = data['unit']
         lesson.content = data['content']
@@ -136,7 +138,6 @@ def updateQuiz(request, pk):
         data = request.data
         quiz = Quiz.objects.get(_id=pk)
 
-        quiz.lesson = data['lesson']
         quiz.question = data['question']
         quiz.numAnswer = data['numAnswer']
 
@@ -188,7 +189,6 @@ def updateAnswer(request, pk):
         data = request.data
         answer = Answer.objects.get(_id=pk)
 
-        answer.quiz = data['quiz']
         answer.text = data['text']
         answer.isCorrect = data['isCorrect']
 

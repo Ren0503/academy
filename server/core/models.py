@@ -42,6 +42,7 @@ class Review(models.Model):
 class Lesson(models.Model):
     _id = models.UUIDField(default=uuid.uuid4,  unique=True,
                            primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     course = models.ForeignKey(Course, on_delete=models.SET_NULL, null=True)
     unit = models.IntegerField(null=True, blank=True)
     name = models.CharField(max_length=200, blank=True, null=True)
@@ -81,6 +82,7 @@ class Certificate(models.Model):
 class Quiz(models.Model):
     _id = models.UUIDField(default=uuid.uuid4,  unique=True,
                            primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     lesson = models.ForeignKey(Lesson, on_delete=models.SET_NULL, null=True)
     question = models.CharField(max_length=200, blank=True, null=True)
     numAnswer = models.IntegerField(blank=True, null=True, default=0)
@@ -93,6 +95,7 @@ class Quiz(models.Model):
 class Answer(models.Model):
     _id = models.UUIDField(default=uuid.uuid4,  unique=True,
                            primary_key=True, editable=False)
+    user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     quiz = models.ForeignKey(Quiz, on_delete=models.SET_NULL, null=True)
     text = models.CharField(max_length=200, blank=True, null=True)
     isCorrect = models.BooleanField(blank=True, null=True)
